@@ -1,0 +1,4 @@
+enum ImageSourceSelector {
+  camera,
+  gallery,
+}
