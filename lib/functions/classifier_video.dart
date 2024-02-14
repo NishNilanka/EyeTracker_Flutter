@@ -67,13 +67,30 @@ class ClassifierVideo {
 
       ///image pre-processing step
       final stopwatchPreProcessing = Stopwatch()..start();
+      Recognition? best;
+      for (var face in faces) {
+        if (best == null) {
+          best = face;
+        } else {
+          if (face.score > best.score) {
+            best = face;
+          }
+        }
+      }
+      final f = best;
+
+      final left = f!.location!.left;
+      final top = f.location!.top;
+      final width = f.location!.width;
+      final height = f.location!.height;
+
       // final decodedImage = await convertCameraImageToImage(image);
       final croppedImage = img.copyCrop(
         imageI,
-        x: (faces[0].location!.left * imageI.width).toInt(),
-        y: (faces[0].location!.top * imageI.height).toInt(),
-        width: (faces[0].location!.width * imageI.width).toInt(),
-        height: (faces[0].location!.height * imageI.height).toInt(),
+        x: (left * imageI.width).toInt(),
+        y: (top * imageI.height).toInt(),
+        width: (width * imageI.width).toInt(),
+        height: (height * imageI.height).toInt(),
       );
 
       //final correctedImage = img.copyRotate(croppedImage, angle: -90);
@@ -104,12 +121,12 @@ class ClassifierVideo {
       await outputs?.forEach((element) async {
         await element?.release();
       });
-      stopwatchInference.stop();
-      modelInferenceTime = stopwatchInference.elapsedMilliseconds;
 
       ///prepare the output data to return
       final label = "${result[0][0].toString()} , ${result[0][1].toString()}";
       final resultImage = img.encodeJpg(croppedImage);
+      stopwatchInference.stop();
+      modelInferenceTime = stopwatchInference.elapsedMilliseconds;
       stopwatch.stop();
       totalTime = stopwatch.elapsedMilliseconds;
       return {
@@ -300,7 +317,7 @@ class ClassifierVideo {
     ///this is with custom model
 
     final faceImageBuffer =
-        await _imageToByteListFloat32Color(cameraImage, 240, 320, 127.5, 127.5);
+        await _imageToByteListFloat32Color(cameraImage, 240, 320, 127.5, 128);
 
     final inputOrt =
         OrtValueTensor.createTensorWithDataList(faceImageBuffer, faceShape);
@@ -319,7 +336,6 @@ class ClassifierVideo {
     List<Recognition> recognitions = List.empty(growable: true);
 
     for (int i = 0; i < scores[0].length; i++) {
-      // print(scores[0][i]);
       if (scores[0][i][1] > 0.1) {
         final recognition = Recognition(
             i,
@@ -330,7 +346,7 @@ class ClassifierVideo {
         recognitions.add(recognition);
       }
     }
-    final face = nms(recognitions, ['face'], 0.4);
+    final face = nms(recognitions, 0.4);
 
     return face;
   }

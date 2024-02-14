@@ -3,7 +3,6 @@ import 'package:eye_tracker_app/functions/pick_video_imagestream.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../functions/screen_location.dart';
 import '../riverpod/result_controller.dart';
 
 class ResultPageVideo extends ConsumerWidget {
@@ -11,7 +10,7 @@ class ResultPageVideo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenSize = MediaQuery.of(context).size;
+    //final screenSize = MediaQuery.of(context).size;
     //ref.read(videoController);
     final result = ref.watch(resultProvider);
     final avgTime = ref.watch(averageTimeProvider);
@@ -110,10 +109,10 @@ class ResultPageVideo extends ConsumerWidget {
                     );
                   })
                 : videoStream.when(data: (data) {
-                    Alignment alignment = const Alignment(0.0, 0.0);
-                    if (result['label'] != null) {
-                      alignment = screenLocation(screenSize, result['label']);
-                    }
+                    // Alignment alignment = const Alignment(0.0, 0.0);
+                    // if (result['label'] != null) {
+                    //   alignment = screenLocation(screenSize, result['label']);
+                    // }
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Stack(

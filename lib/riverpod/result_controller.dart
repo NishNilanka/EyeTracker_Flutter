@@ -12,9 +12,6 @@ class AverageTime extends StateNotifier<List<int>> {
 
   void add(int item) {
     state = [...state, item]; // Add new item to the beginning for FIFO behavior
-    if (state.length > 10) {
-      state = state.sublist(1); // Remove the first item if list exceeds 10
-    }
   }
 }
 
@@ -36,7 +33,6 @@ final resultSummery = FutureProvider<Map?>((ref) async {
     if (file.existsSync()) {
       final string = await file.readAsString();
       final stringList = string.split('\n');
-      print(stringList.length);
       stringList.removeAt(0);
       stringList.removeAt(stringList.length - 1);
       for (var item in stringList) {
@@ -46,12 +42,18 @@ final resultSummery = FutureProvider<Map?>((ref) async {
         modelInference.add(double.parse(data[5]));
         faceDetection.add(double.parse(data[6]));
       }
+      final frAvg = frameRead.average.floorToDouble();
+      final proAvg = preProcessing.average.floorToDouble();
+      final infAvg = modelInference.average.floorToDouble();
+      final faceAvg = faceDetection.average.floorToDouble();
+      final totalAverageTime = frAvg + proAvg + infAvg + faceAvg;
 
       return {
-        'frameRead': frameRead.average.floorToDouble(),
-        'preProcessing': preProcessing.average.floorToDouble(),
-        'modelInference': modelInference.average.floorToDouble(),
-        'faceDetection': faceDetection.average.floorToDouble(),
+        'total': totalAverageTime,
+        'frameRead': frAvg,
+        'preProcessing': proAvg,
+        'modelInference': infAvg,
+        'faceDetection': faceAvg,
       };
     } else {
       return null;
